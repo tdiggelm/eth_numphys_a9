@@ -121,6 +121,8 @@ def Part1():
     #                                                   #
     #####################################################
 
+    # log-plot? => do both
+
     grid(True)
     xlim(-6, 6)
     ylim(1e-10, 1e-3)
@@ -153,9 +155,15 @@ def arnoldi(A, v0, k):
     #                                                      #
     ########################################################
 
+    for m in xrange(k):
+        #vt = multMv(A, V[:, m])
+        vt = A * V[:,m]
+        for j in xrange(m+1):
+            H[j,m] = (V[:,j].H * vt)[0,0]
+            vt -= H[j,m] * V[:,j]
+        H[m+1,m] = norm(vt)
+        V[:,m+1] = vt.copy()/H[m+1,m]
     return V, H[:-1,:]
-
-
 
 
 def Part2():
