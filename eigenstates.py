@@ -416,37 +416,38 @@ def Part3():
     #       mit dem Arnoldi Verfahren.                  #
     #                                                   #
     #####################################################
-    V, HH = arnoldi(H, v0, 180)
-    ewk, Psik = eig(HH)
-    ewk = abs(ewk)
-    Psik = V.dot(Psik) # transform ev's back to initial base
-    Psik = Psik.T.real
-    ewk, Psik = zip(*[(ewk[i], Psik[i]) for i in argsort(ewk)])
-    Psik = array(Psik).T.real
+    for kry in [50, 100, 180]:
+        V, HH = arnoldi(H, v0, kry)
+        ewk, Psik = eig(HH)
+        ewk = abs(ewk)
+        Psik = V.dot(Psik) # transform ev's back to initial base
+        Psik = Psik.T.real
+        ewk, Psik = zip(*[(ewk[i], Psik[i]) for i in argsort(ewk)])
+        Psik = array(Psik).T.real
 
-    fig = figure(figsize=(12,8))
-    vc = 0
-    for k in xrange(0, 2*K):
-        # Skip some numerical artefacts
-        if abs(ewk[k]) < 1.0:
-            continue
-        else:
-            vc += 1
-            if vc > K:
-                break
+        fig = figure(figsize=(12,8))
+        vc = 0
+        for k in xrange(0, 2*K):
+            # Skip some numerical artefacts
+            if abs(ewk[k]) < 1.0:
+                continue
+            else:
+                vc += 1
+                if vc > K:
+                    break
 
-        # Plot first K eigenstates
-        psik = Psik[:,k].reshape((N,N))
+            # Plot first K eigenstates
+            psik = Psik[:,k].reshape((N,N))
 
-        fig.add_subplot(2, 3, vc)
-        ax = fig.gca()
-        ax.set_aspect('equal')
+            fig.add_subplot(2, 3, vc)
+            ax = fig.gca()
+            ax.set_aspect('equal')
 
-        ax.contour(X, Y, v(X,Y), colors="gray", levels=linspace(0, 20, 15))
-        ax.contourf(X, Y, abs(psik), levels=linspace(0, 0.15, 40))
+            ax.contour(X, Y, v(X,Y), colors="gray", levels=linspace(0, 20, 15))
+            ax.contourf(X, Y, abs(psik), levels=linspace(0, 0.15, 40))
 
-        ax.grid(True)
-    fig.savefig("henon_eigenfunctions_arnoldi.pdf")
+            ax.grid(True)
+        fig.savefig("henon_eigenfunctions_arnoldi_k%s.pdf" % kry)
 
 
 
