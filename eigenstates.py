@@ -329,6 +329,11 @@ def Part3():
     # TODO: Bauen Sie den diskreten Hamiltonian. #
     #                                            #
     ##############################################
+    V = diag(array([v(x[i],x[j]) for j in range(N) for i in range(N)]))
+    L=-4*eye(N*N)+eye(N*N,k=1)+eye(N*N,k=-1) +eye(N*N,k=3)+eye(N*N,k=-3)
+    L = 1/h**2*L
+    H = -0.5*L+V
+
 
     figure()
     matshow(H[:50,:50])
@@ -345,6 +350,12 @@ def Part3():
     # TODO: Berechnen Sie Eigenwerte und Eigenvektoren. #
     #                                                   #
     #####################################################
+    from scipy.sparse.linalg import eigs # use eigs for better performance
+    ew, ev = eigs(H, which="SR") # find eigenvalues with smallest real parts
+    ew = abs(ew)
+    ev = ev.T.real    
+    ew, ev = zip(*[(ew[i], ev[i]) for i in argsort(ew)])
+    Psi = array(ev).T.real
 
 
     fig = figure(figsize=(12,8))
@@ -377,7 +388,13 @@ def Part3():
     #       mit dem Arnoldi Verfahren.                  #
     #                                                   #
     #####################################################
-
+    V, HH = arnoldi(H, v0, 180)
+    ewk, Psik = eig(HH)
+    ewk = abs(ewk)
+    Psik = V.dot(Psik) # transform ev's back to initial base
+    Psik = Psik.T.real
+    ewk, Psik = zip(*[(ewk[i], Psik[i]) for i in argsort(ewk)])
+    Psik = array(Psik).T.real
 
     fig = figure(figsize=(12,8))
     vc = 0
@@ -416,5 +433,5 @@ if __name__ == "__main__":
     #################################################################################
 
     #Part1()
-    Part2()
-    #Part3()
+    #Part2()
+    Part3()
