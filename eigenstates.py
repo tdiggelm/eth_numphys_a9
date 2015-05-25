@@ -210,6 +210,7 @@ def Part2():
     a = 1
     v = lambda x: d*(exp(-2*a*x) - 2*exp(-a*x))
 
+    # TODO: plot symmetric vs non-symmetric
 
     # Unteraufgabe e)
 
@@ -221,12 +222,21 @@ def Part2():
     # TODO: Bauen Sie den diskreten Hamiltonian. #
     #                                            #
     ##############################################
-
+    L = diag(N*[-2])+eye(N,k=1)+eye(N,k=-1)
+    L[0]=L[1]
+    L[-1]=L[-2]
+    L = 1/h**2*L
+    H = -0.5*L+diag(v(x))
+    
     #####################################################
     #                                                   #
     # TODO: Berechnen Sie Eigenwerte und Eigenvektoren. #
     #                                                   #
     #####################################################
+    ew, ev = eig(H)
+    ew = abs(ew)
+    ev = ev.T.real
+    ew, ev = zip(*[(ew[i], ev[i]) for i in argsort(ew)])
 
 
     figure()
@@ -237,6 +247,9 @@ def Part2():
     # TODO: Plotten Sie die Eigenfunktionen. #
     #                                        #
     ##########################################
+    
+    for n in range(4):
+        plot(x, ev[n], label="$n=%d$" % n)
 
     grid(True)
     ylim(-1, 2)
@@ -258,6 +271,12 @@ def Part2():
     #                                                   #
     #####################################################
 
+    V, HH = arnoldi(H, v0, 150)
+    ew, ev = eig(HH)
+    ew = abs(ew)
+    ev = V.dot(ev) # transform ev's back to initial base
+    ev = ev.T.real
+    ew, ev = zip(*[(ew[i], ev[i]) for i in argsort(ew)])
 
     figure()
     plot(x, v(x), "k")
@@ -267,6 +286,8 @@ def Part2():
     # TODO: Plotten Sie die Eigenfunktionen. #
     #                                        #
     ##########################################
+    for n in range(4):
+        plot(x, ev[n], label="$n=%d$" % n)
 
     grid(True)
     ylim(-1, 2)
@@ -394,6 +415,6 @@ if __name__ == "__main__":
     #                                                                               #
     #################################################################################
 
-    Part1()
-    #Part2()
+    #Part1()
+    Part2()
     #Part3()
