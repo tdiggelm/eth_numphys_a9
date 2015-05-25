@@ -210,8 +210,6 @@ def Part2():
     a = 1
     v = lambda x: d*(exp(-2*a*x) - 2*exp(-a*x))
 
-    # TODO: plot symmetric vs non-symmetric
-
     # Unteraufgabe e)
 
     N = 256
