@@ -159,7 +159,7 @@ def Part1():
     for n in range(nn):
         semilogy(x, abs(abs(psi_e[n])-abs(psi[n])), label="$n=%d$" % n)
 
-        title("harmonic eigenfunctions error")
+    title("harmonic eigenfunctions error")
     grid(True)
     xlim(-6, 6)
     ylim(1e-10, 1e-3)
@@ -215,84 +215,89 @@ def Part2():
     N = 256
     x, h = linspace(-2, 8, N, retstep=True)
 
-    ##############################################
-    #                                            #
-    # TODO: Bauen Sie den diskreten Hamiltonian. #
-    #                                            #
-    ##############################################
-    L = diag(N*[-2])+eye(N,k=1)+eye(N,k=-1)
-    L[0]=L[1]
-    L[-1]=L[-2]
-    L = 1/h**2*L
-    H = -0.5*L+diag(v(x))
+    for symmetric in [True, False]:
+        how = "symmetric" if symmetric else "nonsymmetric"
+        ##############################################
+        #                                            #
+        # TODO: Bauen Sie den diskreten Hamiltonian. #
+        #                                            #
+        ##############################################
+        L = diag(N*[-2])+eye(N,k=1)+eye(N,k=-1)
+        if not symmetric:
+            L[0]=L[1]
+            L[-1]=L[-2]
+        L = 1/h**2*L
+        H = -0.5*L+diag(v(x))
     
-    #####################################################
-    #                                                   #
-    # TODO: Berechnen Sie Eigenwerte und Eigenvektoren. #
-    #                                                   #
-    #####################################################
-    ew, ev = eig(H)
-    ew = abs(ew)
-    ev = ev.T.real
-    ew, ev = zip(*[(ew[i], ev[i]) for i in argsort(ew)])
+        #####################################################
+        #                                                   #
+        # TODO: Berechnen Sie Eigenwerte und Eigenvektoren. #
+        #                                                   #
+        #####################################################
+        ew, ev = eig(H)
+        ew = abs(ew)
+        ev = ev.T.real
+        ew, ev = zip(*[(ew[i], ev[i]) for i in argsort(ew)])
 
 
-    figure()
-    plot(x, v(x), "k")
+        figure()
+        plot(x, v(x), "k")
 
-    ##########################################
-    #                                        #
-    # TODO: Plotten Sie die Eigenfunktionen. #
-    #                                        #
-    ##########################################
+        ##########################################
+        #                                        #
+        # TODO: Plotten Sie die Eigenfunktionen. #
+        #                                        #
+        ##########################################
     
-    for n in range(4):
-        plot(x, ev[n], label="$n=%d$" % n)
+        for n in range(4):
+            plot(x, ev[n], label="$n=%d$" % n)
 
-    grid(True)
-    ylim(-1, 2)
-    legend(loc='best')
-    xlabel(r"$x$")
-    ylabel(r"$\psi_n(x)$")
-    savefig("morse_eigenfunctions.pdf")
+        title("morse eigenfunctions %s" % how)
+        grid(True)
+        ylim(-1, 2)
+        legend(loc='best')
+        xlabel(r"$x$")
+        ylabel(r"$\psi_n(x)$")
+        savefig("morse_eigenfunctions_%s.pdf" % how)
 
 
-    # Unteraufgabe f)
+        # Unteraufgabe f)
 
-    # Startvektor fuer Arnoldi
-    v0 = ones(N)/sqrt(N)
+        # Startvektor fuer Arnoldi
+        v0 = ones(N)/sqrt(N)
 
-    #####################################################
-    #                                                   #
-    # TODO: Berechnen Sie Eigenwerte und Eigenvektoren  #
-    #       mit dem Arnoldi Verfahren.                  #
-    #                                                   #
-    #####################################################
+        #####################################################
+        #                                                   #
+        # TODO: Berechnen Sie Eigenwerte und Eigenvektoren  #
+        #       mit dem Arnoldi Verfahren.                  #
+        #                                                   #
+        #####################################################
 
-    V, HH = arnoldi(H, v0, 150)
-    ew, ev = eig(HH)
-    ew = abs(ew)
-    ev = V.dot(ev) # transform ev's back to initial base
-    ev = ev.T.real
-    ew, ev = zip(*[(ew[i], ev[i]) for i in argsort(ew)])
+        V, HH = arnoldi(H, v0, 150)
+        ew, ev = eig(HH)
+        ew = abs(ew)
+        ev = V.dot(ev) # transform ev's back to initial base
+        ev = ev.T.real
+        ew, ev = zip(*[(ew[i], ev[i]) for i in argsort(ew)])
 
-    figure()
-    plot(x, v(x), "k")
+        figure()
+        plot(x, v(x), "k")
 
-    ##########################################
-    #                                        #
-    # TODO: Plotten Sie die Eigenfunktionen. #
-    #                                        #
-    ##########################################
-    for n in range(4):
-        plot(x, ev[n], label="$n=%d$" % n)
+        ##########################################
+        #                                        #
+        # TODO: Plotten Sie die Eigenfunktionen. #
+        #                                        #
+        ##########################################
+        for n in range(4):
+            plot(x, ev[n], label="$n=%d$" % n)
 
-    grid(True)
-    ylim(-1, 2)
-    legend(loc='best')
-    xlabel(r"$x$")
-    ylabel(r"$\psi_n(x)$")
-    savefig("morse_eigenfunctions_arnoldi.pdf")
+            title("morse eigenfunctions arnoldi %s" % how)
+        grid(True)
+        ylim(-1, 2)
+        legend(loc='best')
+        xlabel(r"$x$")
+        ylabel(r"$\psi_n(x)$")
+        savefig("morse_eigenfunctions_arnoldi_%s.pdf" % how)
 
 
 
@@ -348,8 +353,9 @@ def Part3():
     # TODO: Berechnen Sie Eigenwerte und Eigenvektoren. #
     #                                                   #
     #####################################################
-    from scipy.sparse.linalg import eigs # use eigs for better performance
-    ew, ev = eigs(H, which="SR") # find eigenvalues with smallest real parts
+    #from scipy.sparse.linalg import eigs # use eigs for better performance
+    #ew, ev = eigs(H, which="SR") # find eigenvalues with smallest real parts
+    ew, ev = eig(H)
     ew = abs(ew)
     ev = ev.T.real    
     ew, ev = zip(*[(ew[i], ev[i]) for i in argsort(ew)])
@@ -430,6 +436,6 @@ if __name__ == "__main__":
     #                                                                               #
     #################################################################################
 
-    #Part1()
-    #Part2()
+    Part1()
+    Part2()
     Part3()
