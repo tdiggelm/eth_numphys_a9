@@ -352,9 +352,9 @@ def Part3():
             L[j*N+i,j*N+i] = -4
             if j*N+i+1 < L.shape[1]:
                 L[j*N+i,j*N+i+1] = 1
-            if j*N+i-1 > 0:
+            if j*N+i-1 >= 0:
                 L[j*N+i,j*N+i-1] = 1
-            if (j-1)*N+i > 0:
+            if (j-1)*N+i >= 0:
                 L[j*N+i,(j-1)*N+i] = 1
             if (j+1)*N+i < L.shape[1]:
                 L[j*N+i,(j+1)*N+i] = 1
