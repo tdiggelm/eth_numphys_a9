@@ -21,38 +21,55 @@ def Part1():
 
     # Unteraufgabe a)
 
-    def build_hamiltonian(N):
+    def build_hamiltonian(N, h):
         r"""
         N: Number of 'unknowns' or 'grid points'
         """
-        H = zeros((N,N))
+        #H = zeros((N,N))
 
         ##############################################
         #                                            #
         # TODO: Bauen Sie den diskreten Hamiltonian. #
         #                                            #
         ##############################################
+        L = diag(N*[-2])+eye(N,k=1)+eye(N,k=-1)
+        L[0]=L[1]
+        L[-1]=L[-2]
+        L = 1/h**2*L
+        H = -0.5*L+diag(v(x))
 
         return H
 
 
     # Unteraufgabe b)
 
-    N = 2**arange(5, 11)
+    NN = 2**arange(5, 11)
+    #NN = 2**arange(5, 7)
 
     EW = []
     EV = []
 
-    for n in N:
-        ew = ones(n)
-        ev = eye(n)
+    a, b = -10.0, 10.0
+
+    for N in NN:
+        #ew = ones(N)
+        #ev = eye(N)
 
         #####################################################
         #                                                   #
         # TODO: Berechnen Sie Eigenwerte und Eigenvektoren. #
         #                                                   #
         #####################################################
-
+        
+        x, h = linspace(a, b, N, retstep=True)
+        H = build_hamiltonian(N, h)
+        
+        ew, ev = eig(H)
+        ew = abs(ew)
+        ev = ev.T.real
+        
+        ew, ev = zip(*[(ew[i], ev[i]) for i in argsort(ew)])
+        
         # Store
         EW.append(ew)
         EV.append(ev)
@@ -70,13 +87,16 @@ def Part1():
     # TODO: Plotten Sie die Eigenwerte. #
     #                                   #
     #####################################
+    for N, E in zip(NN, EW):
+        plot(E[:nn], label=r"$N=%d$" % N)
 
+    title("harmonic eigenvalues")
     grid(True)
     xlim(n.min(), n.max())
     legend(loc='best')
     xlabel(r"$n$")
-    ylabel(r"$E_n$")
-    savefig("harmonic_eigenvalues.png")
+    ylabel(r"$E_n^{(N)}$")
+    savefig("harmonic_eigenvalues.pdf")
 
 
     figure()
@@ -86,16 +106,27 @@ def Part1():
     # TODO: Plotten Sie die Fehler der Eigenwerte. #
     #                                              #
     ################################################
+    Ee = E_exact(arange(nn))
+    for N, E in zip(NN, EW):
+        plot(abs(E[:32]-Ee), label=r"$N=%d$" % N)
 
+    title("harmonic eigenvalues error")
     grid(True)
     xlim(n.min(), n.max())
     legend(loc='best')
     xlabel(r"$n$")
-    ylabel(r"$E_n$")
-    savefig("harmonic_eigenvalues_error.png")
+    ylabel(r"$|E_n^{(N)}-E_n^{exact}|$")
+    savefig("harmonic_eigenvalues_error.pdf")
 
 
     # Unteraufgabe d)
+
+    nn = 7
+    x = linspace(a, b, 1024)
+    N, E, psi = NN[-1], EW[-1], EV[-1]
+    psi_e = array([psi_exact(i,x) for i in range(nn)])
+    psi_e = (psi_e.T / norm(psi_e, axis=1)).T
+
 
     figure()
 
@@ -104,13 +135,16 @@ def Part1():
     # TODO: Plotten Sie die Eigenfunktionen. #
     #                                        #
     ##########################################
-
+    for n in range(nn):
+        plot(x, psi[n], label="$n=%d$" % n)
+    
+    title("harmonic eigenfunctions")
     grid(True)
     xlim(-6, 6)
     legend(loc='best')
     xlabel(r"$x$")
     ylabel(r"$\psi_n(x)$")
-    savefig("harmonic_eigenfunctions.png")
+    savefig("harmonic_eigenfunctions.pdf")
 
 
     figure()
@@ -122,14 +156,17 @@ def Part1():
     #####################################################
 
     # log-plot? => do both
+    for n in range(nn):
+        semilogy(x, abs(abs(psi_e[n])-abs(psi[n])), label="$n=%d$" % n)
 
+        title("harmonic eigenfunctions error")
     grid(True)
     xlim(-6, 6)
     ylim(1e-10, 1e-3)
     legend(loc='best')
     xlabel(r"$x$")
     ylabel(r"$\psi_n(x)$")
-    savefig("harmonic_eigenfunctions_error.png")
+    savefig("harmonic_eigenfunctions_error.pdf")
 
 
 
@@ -154,16 +191,15 @@ def arnoldi(A, v0, k):
     # TODO: Implementieren Sie hier das Arnoldi Verfahren. #
     #                                                      #
     ########################################################
-
+    V[:,0] = v0/norm(v0) # V[:,0] = v0.copy/norm(v0)
     for m in xrange(k):
-        #vt = multMv(A, V[:, m])
-        vt = A * V[:,m]
+        vt = A.dot(V[:,m])
         for j in xrange(m+1):
-            H[j,m] = (V[:,j].H * vt)[0,0]
+            H[j,m] = dot(V[:,j].conjugate(), vt)
             vt -= H[j,m] * V[:,j]
         H[m+1,m] = norm(vt)
-        V[:,m+1] = vt.copy()/H[m+1,m]
-    return V, H[:-1,:]
+        V[:,m+1] = vt/H[m+1,m]
+    return V[:,:-1], H[:-1,:]
 
 
 def Part2():
@@ -207,7 +243,7 @@ def Part2():
     legend(loc='best')
     xlabel(r"$x$")
     ylabel(r"$\psi_n(x)$")
-    savefig("morse_eigenfunctions.png")
+    savefig("morse_eigenfunctions.pdf")
 
 
     # Unteraufgabe f)
@@ -237,7 +273,7 @@ def Part2():
     legend(loc='best')
     xlabel(r"$x$")
     ylabel(r"$\psi_n(x)$")
-    savefig("morse_eigenfunctions_arnoldi.png")
+    savefig("morse_eigenfunctions_arnoldi.pdf")
 
 
 
@@ -276,7 +312,7 @@ def Part3():
     figure()
     matshow(H[:50,:50])
     colorbar()
-    savefig("discrete_hamiltonian.png")
+    savefig("discrete_hamiltonian.pdf")
 
 
     # Unteraufgabe h)
@@ -303,7 +339,7 @@ def Part3():
         ax.contourf(X, Y, abs(psik), levels=linspace(0, 0.15, 40))
 
         ax.grid(True)
-    fig.savefig("henon_eigenfunctions.png")
+    fig.savefig("henon_eigenfunctions.pdf")
 
 
     # Unteraufgabe i)
@@ -344,7 +380,7 @@ def Part3():
         ax.contourf(X, Y, abs(psik), levels=linspace(0, 0.15, 40))
 
         ax.grid(True)
-    fig.savefig("henon_eigenfunctions_arnoldi.png")
+    fig.savefig("henon_eigenfunctions_arnoldi.pdf")
 
 
 
