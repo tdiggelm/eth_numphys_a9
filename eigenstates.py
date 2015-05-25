@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+#############################################################################
+# course:   Numerische Methoden D-PHYS
+# exercise: assignment 9
+# author:   Thomas Diggelmann <thomas.diggelmann@student.ethz.ch>
+# date:     25.05.2015
+#############################################################################
 from numpy import *
 from numpy.linalg import eig, norm
 from scipy.special import hermite, gamma
