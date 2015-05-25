@@ -138,6 +138,12 @@ def Part1():
     for n in range(nn):
         plot(x, psi[n], label="$n=%d$" % n)
     
+    # plot levels
+    #for n in range(nn):
+    #    plot(x, E[n]+psi[n], label="$n=%d$" % n)
+    #plot(x, v(x), "k")
+    #ylim(0, 8)
+    
     title("harmonic eigenfunctions")
     grid(True)
     xlim(-6, 6)
