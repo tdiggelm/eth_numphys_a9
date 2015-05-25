@@ -346,7 +346,18 @@ def Part3():
     #                                            #
     ##############################################
     V = diag(array([v(x[i],x[j]) for j in range(N) for i in range(N)]))
-    L=-4*eye(N*N)+eye(N*N,k=1)+eye(N*N,k=-1) +eye(N*N,k=3)+eye(N*N,k=-3)
+    L = zeros((N*N,N*N))
+    for j in range(N):
+        for i in range(N):
+            L[j*N+i,j*N+i] = -4
+            if j*N+i+1 < L.shape[1]:
+                L[j*N+i,j*N+i+1] = 1
+            if j*N+i-1 > 0:
+                L[j*N+i,j*N+i-1] = 1
+            if (j-1)*N+i > 0:
+                L[j*N+i,(j-1)*N+i] = 1
+            if (j+1)*N+i < L.shape[1]:
+                L[j*N+i,(j+1)*N+i] = 1
     L = 1/h**2*L
     H = -0.5*L+V
 
