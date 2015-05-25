@@ -304,7 +304,7 @@ def Part2():
         for n in range(4):
             plot(x, ev[n], label="$n=%d$" % n)
 
-            title("morse eigenfunctions arnoldi %s" % how)
+        title("morse eigenfunctions arnoldi %s" % how)
         grid(True)
         ylim(-1, 2)
         legend(loc='best')
