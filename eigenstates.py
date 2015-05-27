@@ -370,10 +370,9 @@ def Part3():
     #ew, ev = eigs(H, which="SR") # find eigenvalues with smallest real parts
     ew, ev = eig(H)
     ew = abs(ew)
-    ev = ev.T.real    
-    ew, ev = zip(*[(ew[i], ev[i]) for i in argsort(ew)])
-    Psi = array(ev).T.real
-
+    ev = abs(ev)
+    idx = argsort(ew)
+    Psi = ev[:, idx]
 
     fig = figure(figsize=(12,8))
     for k in xrange(K):
@@ -410,9 +409,10 @@ def Part3():
         ewk, Psik = eig(HH)
         ewk = abs(ewk)
         Psik = V.dot(Psik) # transform ev's back to initial base
-        Psik = Psik.T.real
-        ewk, Psik = zip(*[(ewk[i], Psik[i]) for i in argsort(ewk)])
-        Psik = array(Psik).T.real
+        Psik = abs(Psik)
+        idx = argsort(ewk)
+        ewk = ewk[idx]
+        Psik = Psik[:, idx]
 
         fig = figure(figsize=(12,8))
         vc = 0
