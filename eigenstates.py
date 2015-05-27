@@ -10,6 +10,13 @@ from numpy.linalg import eig, norm
 from scipy.special import hermite, gamma
 from matplotlib.pyplot import *
 
+# helper for part1, part2, part3
+def laplacian1d(N, symmetric=True):
+    L = diag(N*[-2])+eye(N,k=1)+eye(N,k=-1)
+    if not symmetric:
+        L[0]=L[1]
+        L[-1]=L[-2]
+    return L
 
 def Part1():
     # Teil 1: Unteraufgaben a), b), c), d)
@@ -39,10 +46,7 @@ def Part1():
         # TODO: Bauen Sie den diskreten Hamiltonian. #
         #                                            #
         ##############################################
-        L = diag(N*[-2])+eye(N,k=1)+eye(N,k=-1)
-        L[0]=L[1]
-        L[-1]=L[-2]
-        L = 1/h**2*L
+        L = 1/h**2 * laplacian1d(N, symmetric=False)
         H = -0.5*L+diag(v(x))
 
         return H
@@ -235,11 +239,7 @@ def Part2():
         # TODO: Bauen Sie den diskreten Hamiltonian. #
         #                                            #
         ##############################################
-        L = diag(N*[-2])+eye(N,k=1)+eye(N,k=-1)
-        if not symmetric:
-            L[0]=L[1]
-            L[-1]=L[-2]
-        L = 1/h**2*L
+        L = 1/h**2 * laplacian1d(N, symmetric=symmetric)
         H = -0.5*L+diag(v(x))
     
         #####################################################
@@ -346,20 +346,9 @@ def Part3():
     #                                            #
     ##############################################
     V = diag(array([v(x[i],x[j]) for j in range(N) for i in range(N)]))
-    L = zeros((N*N,N*N))
-    for j in range(N):
-        for i in range(N):
-            L[j*N+i,j*N+i] = -4
-            if j*N+i+1 < L.shape[1]:
-                L[j*N+i,j*N+i+1] = 1
-            if j*N+i-1 >= 0:
-                L[j*N+i,j*N+i-1] = 1
-            if (j-1)*N+i >= 0:
-                L[j*N+i,(j-1)*N+i] = 1
-            if (j+1)*N+i < L.shape[1]:
-                L[j*N+i,(j+1)*N+i] = 1
-    L = 1/h**2*L
-    H = -0.5*L+V
+    L1d = laplacian1d(N, symmetric=True)
+    L2d = 1/h**2 * (kron(L1d, eye(N)) + kron(eye(N), L1d))
+    H = -0.5*L2d+V
 
 
     figure()
